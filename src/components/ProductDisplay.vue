@@ -1,9 +1,9 @@
 <script setup>
 import { ref, computed } from 'vue'
-import ReviewForm from './ReviewForm.vue'
-import ReviewList from './ReviewList.vue'
-import socksBlueImage from '../assets/socks_blue.jpg'
-import socksGreenImage from '../assets/socks_green.jpg'
+import ReviewForm from '@/components/ReviewForm.vue'
+import ReviewList from '@/components/ReviewList.vue'
+import socksGreenImage from '@/assets/images/socks_green.jpeg'
+import socksBlueImage from '@/assets/images/socks_blue.jpeg'
 
 const props = defineProps({
   premium: {
@@ -13,10 +13,10 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['add-to-cart'])
-
 const product = ref('Socks')
 const brand = ref('Vue Mastery')
 const selectedVariant = ref(0)
+  
 const details = ref(['50% cotton', '30% wool', '20% polyester'])
 
 const variants = ref([
@@ -25,7 +25,7 @@ const variants = ref([
 ])
 
 const reviews = ref([])
-    
+
 const title = computed(() => {
   return brand.value + ' ' + product.value
 })
@@ -35,25 +35,26 @@ const image = computed(() => {
 })
 
 const inStock = computed(() => {
-  return variants.value[selectedVariant.value].quantity
+  return variants.value[selectedVariant.value].quantity > 0
 })
 
 const shipping = computed(() => {
   if (props.premium) {
     return 'Free'
   }
-  return 2.99
+  else {
+    return 2.99
+  }
 })
 
-function addToCart() {
+const addToCart = () => {
   emit('add-to-cart', variants.value[selectedVariant.value].id)
 }
 
-function updateVariant(index) {
+const updateVariant = (index) => {
   selectedVariant.value = index
 }
-
-function addReview(review) {
+const addReview = (review) => {
   reviews.value.push(review)
 }
 </script>
@@ -61,7 +62,7 @@ function addReview(review) {
 <template>
   <div class="product-display">
     <div class="product-container">
-      <div class="product-image">
+      <div class="product-image">    
         <img v-bind:src="image">
       </div>
       <div class="product-info">
@@ -74,73 +75,23 @@ function addReview(review) {
         </ul>
         <div 
           v-for="(variant, index) in variants" 
-          :key="variant.id" 
-          @mouseover="updateVariant(index)" 
-          class="color-circle" 
-          :style="{ backgroundColor: variant.color }">
+          :key="variant.id"
+          @mouseover="updateVariant(index)"
+          class="color-circle"
+          :style="{ backgroundColor: variant.color }"
+        >
         </div>
-        
-        <button 
+        <button
           class="button" 
-          :class="{ disabledButton: !inStock }" 
-          :disabled="!inStock" 
-          v-on:click="addToCart">
-          Add to Cart
+          :class="{ disabledButton: !inStock }"
+          :disabled="!inStock"
+          v-on:click="addToCart"
+        >
+          Add to cart
         </button>
       </div>
     </div>
-    <review-list v-if="reviews.length" :reviews="reviews"></review-list>
-    <review-form @review-submitted="addReview"></review-form>
+    <ReviewList v-if="reviews.length" :reviews="reviews"></ReviewList>
+    <ReviewForm @review-submitted="addReview"></ReviewForm>
   </div>
 </template>
-
-<style scoped>
-
-.product-display {
-  display: flex;
-  flex-direction: column;
-  padding: 1rem;
-}
-
-.product-container {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-}
-
-.product-image,
-.product-info {
-  width: 50%;
-}
-
-.color-circle {
-  width: 50px;
-  height: 50px;
-  margin-top: 8px;
-  border: 2px solid #d8d8d8;
-  border-radius: 50%;
-}
-
-img {
-  border: 2px solid #d8d8d8;
-  width: 70%;
-  margin: 40px;
-  padding: 15px;
-  -webkit-box-shadow: 0px 2px 15px -12px rgba(0, 0, 0, 0.57);
-  -moz-box-shadow: 0px 2px 15px -12px rgba(0, 0, 0, 0.57);
-  box-shadow: 2px 15px -12px rgba(0, 0, 0, 0.57);
-}
-
-@media only screen and (max-width: 600px) {
-
-  .product-display {
-    width: 100%;
-  }
-
-  .product-image,
-  .product-info {
-    margin-left: 10px;
-    width: 100%;
-  }
-}
-</style>
